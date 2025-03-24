@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: linketrack-proxy
+    name: rastreio-proxy
     env: docker
     plan: free
     dockerfilePath: ./Dockerfile
