@@ -3,7 +3,7 @@ header('Content-Type: application/json');
 
 // Usuário e código de acesso (substitua com suas credenciais)
 $usuario = '16976590714';  // Substitua pelo seu usuário
-$senha = 'Ep7u69xtaHeVAov4MNlDDcZmCbL2FL6mhYmgWeqi';      // Substitua pelo seu código de acesso
+$senha = 'Lb230622.';      // Substitua pelo seu código de acesso
 
 // URL para gerar o token
 $url = 'https://api.correios.com.br/v1/autentica';
