@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: linketrack-proxy
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    buildCommand: ""
+    startCommand: ""
