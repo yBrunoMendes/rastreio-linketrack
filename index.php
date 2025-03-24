@@ -8,39 +8,49 @@ if (!$codigo) {
     exit;
 }
 
-$url = "https://api.botx.app/api/v1/correios/$codigo";
-
-$curl = curl_init();
-curl_setopt_array($curl, [
-    CURLOPT_URL => $url,
+$ch = curl_init();
+curl_setopt_array($ch, [
+    CURLOPT_URL => 'https://www2.correios.com.br/sistemas/rastreamento/resultado.cfm',
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => http_build_query(['objetos' => $codigo]),
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_TIMEOUT => 10,
+    CURLOPT_FOLLOWLOCATION => true,
 ]);
 
-$response = curl_exec($curl);
+$html = curl_exec($ch);
 
-if (curl_errno($curl)) {
-    echo json_encode(['error' => 'Erro cURL: ' . curl_error($curl)]);
-    curl_close($curl);
+if (curl_errno($ch)) {
+    echo json_encode(['error' => 'Erro cURL: ' . curl_error($ch)]);
+    curl_close($ch);
     exit;
 }
 
-curl_close($curl);
-$dados = json_decode($response, true);
+curl_close($ch);
 
-if (!isset($dados['tracking']['events']) || !is_array($dados['tracking']['events'])) {
-    echo json_encode(['error' => 'Resposta inválida da API BotX.', 'raw' => $response]);
+// Tentativa simples de extrair os dados
+if (stripos($html, 'Dados do Objeto') === false) {
+    echo json_encode(['error' => 'Código inválido ou não encontrado nos Correios.']);
     exit;
 }
+
+// Pega os eventos com regex (raspagem básica)
+preg_match_all('/<tr>.*?<td.*?>(.*?)<\\/td>.*?<td.*?>(.*?)<\\/td>.*?<td.*?>(.*?)<\\/td>.*?<\\/tr>/is', $html, $matches, PREG_SET_ORDER);
 
 $eventos = [];
 
-foreach ($dados['tracking']['events'] as $evento) {
-    $eventos[] = [
-        'status' => $evento['status'],
-        'data' => $evento['datetime'],
-        'local' => $evento['location'] ?? '---'
-    ];
+foreach ($matches as $match) {
+    $data = trim(strip_tags($match[1]));
+    $local = trim(strip_tags($match[2]));
+    $status = trim(strip_tags($match[3]));
+
+    if ($status && $data) {
+        $eventos[] = [
+            'status' => $status,
+            'data' => $data,
+            'local' => $local
+        ];
+    }
 }
 
 echo json_encode($eventos);
