@@ -1,10 +1,10 @@
 <?php
 header('Content-Type: application/json');
 
-// O token de acesso que você já tem
-$token = 'aJPu3YxgpuCY1oyCcXHUrTJPJCptjH2nPOhqywj3'; // Seu token de acesso
+// Token de acesso gerado (substitua pelo token obtido)
+$token = 'eyJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3NDI4NTExNTQsImlzcyI6InRva2VuLXNlcnZpY2UiLCJleHAiOjE3NDI5Mzc1NTQsImp0aSI6IjRiM2Q4Njk4LWY3YmYtNDhkMy1iNzI2LThlZWMxN2VhYTE1NyIsImFtYmllbnRlIjoiUFJPRFVDQU8iLCJwZmwiOiJQRiIsImlwIjoiNDUuMTY5LjIyNS4xNCwgMTkyLjE2OC4xLjEzMSIsImNhdCI6IklkMCIsImNwZiI6IjE2OTc2NTkwNzE0IiwiaWQiOiIxNjk3NjU5MDcxNCJ9.dJvGbIv4Ds2fAK-kT5hHDA3AR_JgdAU-tx5cQZd7RX4Ecw9Oyd2JzN2USs_HwUksUdq1DZWentLa1B8q3kj0ZTpqzOlABPsI6HHuzPpxUe3Yj_Rmwbfz0k7JJevgwhrvIaikeKYhjCwZC44fZjSsWwhVrQIErxDEx-16okKUO6LVDhXYnh5eE7ElVCfoMP6NSfxRW5QuAlWfpvhyRx8OsuyjfDWz9zEtSisASFqjN9C7IQi5sQBUl5m3m7CPnyNhpykxHCYFesjR_sNPl_6BrniGc1dSecJfDicvlScN96xP_hX2ynBMwDJWAkDuAby3sNswftuELqpmZk1eAxVNTA'; // Coloque o token obtido da geração
 
-// O código de rastreio
+// Código de rastreio
 $codigo = $_GET['codigo'] ?? null;
 
 if (!$codigo) {
@@ -12,7 +12,7 @@ if (!$codigo) {
     exit;
 }
 
-// URL para consultar o rastreio
+// URL do rastreio
 $rastreioUrl = "https://api.correios.com.br/v1/rastreio/$codigo";
 $rastreioHeaders = [
     "Authorization: Bearer $token", // Usando o token fornecido
@@ -26,7 +26,7 @@ curl_setopt_array($ch, [
     CURLOPT_HTTPHEADER => $rastreioHeaders,
 ]);
 
-// Executa a requisição para o rastreio
+// Executa a requisição de rastreio
 $response = curl_exec($ch);
 
 if (curl_errno($ch)) {
