@@ -1,48 +1,51 @@
 <?php
 header('Content-Type: application/json');
 
-// Token de acesso gerado (substitua pelo token obtido)
-$token = 'eyJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3NDI4NTExNTQsImlzcyI6InRva2VuLXNlcnZpY2UiLCJleHAiOjE3NDI5Mzc1NTQsImp0aSI6IjRiM2Q4Njk4LWY3YmYtNDhkMy1iNzI2LThlZWMxN2VhYTE1NyIsImFtYmllbnRlIjoiUFJPRFVDQU8iLCJwZmwiOiJQRiIsImlwIjoiNDUuMTY5LjIyNS4xNCwgMTkyLjE2OC4xLjEzMSIsImNhdCI6IklkMCIsImNwZiI6IjE2OTc2NTkwNzE0IiwiaWQiOiIxNjk3NjU5MDcxNCJ9.dJvGbIv4Ds2fAK-kT5hHDA3AR_JgdAU-tx5cQZd7RX4Ecw9Oyd2JzN2USs_HwUksUdq1DZWentLa1B8q3kj0ZTpqzOlABPsI6HHuzPpxUe3Yj_Rmwbfz0k7JJevgwhrvIaikeKYhjCwZC44fZjSsWwhVrQIErxDEx-16okKUO6LVDhXYnh5eE7ElVCfoMP6NSfxRW5QuAlWfpvhyRx8OsuyjfDWz9zEtSisASFqjN9C7IQi5sQBUl5m3m7CPnyNhpykxHCYFesjR_sNPl_6BrniGc1dSecJfDicvlScN96xP_hX2ynBMwDJWAkDuAby3sNswftuELqpmZk1eAxVNTA'; // Coloque o token obtido da geração
+// Usuário e código de acesso (substitua com suas credenciais)
+$usuario = '16976590714';  // Substitua pelo seu usuário
+$senha = 'Ep7u69xtaHeVAov4MNlDDcZmCbL2FL6mhYmgWeqi';      // Substitua pelo seu código de acesso
 
-// Código de rastreio
-$codigo = $_GET['codigo'] ?? null;
+// URL para gerar o token
+$url = 'https://api.correios.com.br/v1/autentica';
 
-if (!$codigo) {
-    echo json_encode(['error' => 'Código de rastreio não informado.']);
-    exit;
-}
-
-// URL do rastreio
-$rastreioUrl = "https://api.correios.com.br/v1/rastreio/$codigo";
-$rastreioHeaders = [
-    "Authorization: Bearer $token", // Usando o token fornecido
-    'Content-Type: application/json',
+// Cabeçalhos da requisição
+$headers = [
+    'Authorization: Basic ' . base64_encode("$usuario:$senha"),
+    'Content-Type: application/json'
 ];
 
+// Dados para a requisição (não são necessários parâmetros extras para este endpoint)
+$data = [];
+
+// Inicia a requisição cURL para gerar o token
 $ch = curl_init();
 curl_setopt_array($ch, [
-    CURLOPT_URL => $rastreioUrl,
+    CURLOPT_URL => $url,
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => $rastreioHeaders,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => $headers,
+    CURLOPT_POSTFIELDS => json_encode($data),
 ]);
 
-// Executa a requisição de rastreio
+// Executa a requisição
 $response = curl_exec($ch);
 
+// Verifica se ocorreu erro
 if (curl_errno($ch)) {
-    echo json_encode(['error' => 'Erro cURL ao rastrear: ' . curl_error($ch)]);
+    echo json_encode(['error' => 'Erro ao gerar token: ' . curl_error($ch)]);
     curl_close($ch);
     exit;
 }
 
 curl_close($ch);
 
-// Decodifica a resposta da API
-$dados = json_decode($response, true);
+// Decodifica a resposta para obter o token
+$tokenData = json_decode($response, true);
+$token = $tokenData['token'] ?? null;
 
-if (isset($dados['error'])) {
-    echo json_encode(['error' => 'Erro ao obter rastreio: ' . $dados['error']]);
+if (!$token) {
+    echo json_encode(['error' => 'Erro ao obter token']);
     exit;
 }
 
-echo json_encode($dados);
+echo json_encode(['token' => $token]);
