@@ -16,6 +16,9 @@ curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_TIMEOUT => 10,
     CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTPHEADER => [
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+    ],
 ]);
 
 $html = curl_exec($ch);
@@ -28,13 +31,13 @@ if (curl_errno($ch)) {
 
 curl_close($ch);
 
-if (stripos($html, 'Dados do Objeto') === false) {
-    echo json_encode(['error' => 'Código inválido ou não encontrado nos Correios.']);
+if (!str_contains($html, 'Dados do Objeto')) {
+    echo json_encode(['error' => 'Código inválido ou sem eventos recentes.']);
     exit;
 }
 
-// Raspagem simples
-preg_match_all('/<tr>.*?<td.*?>(.*?)<\\/td>.*?<td.*?>(.*?)<\\/td>.*?<td.*?>(.*?)<\\/td>.*?<\\/tr>/is', $html, $matches, PREG_SET_ORDER);
+// Raspagem atualizada com expressão mais segura
+preg_match_all('/<tr>\\s*<td[^>]*>(.*?)<\\/td>\\s*<td[^>]*>(.*?)<\\/td>\\s*<td[^>]*>(.*?)<\\/td>\\s*<\\/tr>/is', $html, $matches, PREG_SET_ORDER);
 
 $eventos = [];
 
@@ -43,13 +46,18 @@ foreach ($matches as $match) {
     $local = trim(strip_tags($match[2]));
     $status = trim(strip_tags($match[3]));
 
-    if ($status && $data) {
+    if ($data && $status) {
         $eventos[] = [
-            'status' => $status,
             'data' => $data,
-            'local' => $local
+            'local' => $local,
+            'status' => $status
         ];
     }
+}
+
+if (empty($eventos)) {
+    echo json_encode(['error' => 'Nenhum evento encontrado.']);
+    exit;
 }
 
 echo json_encode($eventos);
