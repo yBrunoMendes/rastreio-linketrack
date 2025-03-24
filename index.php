@@ -28,13 +28,12 @@ if (curl_errno($ch)) {
 
 curl_close($ch);
 
-// Tentativa simples de extrair os dados
 if (stripos($html, 'Dados do Objeto') === false) {
     echo json_encode(['error' => 'Código inválido ou não encontrado nos Correios.']);
     exit;
 }
 
-// Pega os eventos com regex (raspagem básica)
+// Raspagem simples
 preg_match_all('/<tr>.*?<td.*?>(.*?)<\\/td>.*?<td.*?>(.*?)<\\/td>.*?<td.*?>(.*?)<\\/td>.*?<\\/tr>/is', $html, $matches, PREG_SET_ORDER);
 
 $eventos = [];
