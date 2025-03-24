@@ -8,7 +8,7 @@ if (!$codigo) {
     exit;
 }
 
-$url = "https://api.postmon.com.br/v1/rastreio/correios/" . urlencode($codigo);
+$url = "https://api.botx.app/api/v1/correios/$codigo";
 
 $curl = curl_init();
 curl_setopt_array($curl, [
@@ -28,4 +28,19 @@ if (curl_errno($curl)) {
 curl_close($curl);
 $dados = json_decode($response, true);
 
-echo json_encode($dados['eventos'] ?? []);
+if (!isset($dados['tracking']['events']) || !is_array($dados['tracking']['events'])) {
+    echo json_encode(['error' => 'Resposta inválida da API BotX.', 'raw' => $response]);
+    exit;
+}
+
+$eventos = [];
+
+foreach ($dados['tracking']['events'] as $evento) {
+    $eventos[] = [
+        'status' => $evento['status'],
+        'data' => $evento['datetime'],
+        'local' => $evento['location'] ?? '---'
+    ];
+}
+
+echo json_encode($eventos);
