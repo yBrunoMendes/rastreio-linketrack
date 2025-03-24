@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: rastreio-correto
+    name: rastreio-linketrack
     env: docker
     plan: free
     dockerfilePath: ./Dockerfile
