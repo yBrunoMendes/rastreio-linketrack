@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: rastreio-proxy
+    name: rastreio-correto
     env: docker
     plan: free
     dockerfilePath: ./Dockerfile
