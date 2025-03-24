@@ -8,7 +8,7 @@ if (!$codigo) {
     exit;
 }
 
-$url = "https://linketrack.com/track/json?user=teste&token=1abcd00b2731640e886fb41a8a9671ad1434c599dbaa0a0de9a5aa619f29a83f&codigo=" . urlencode($codigo);
+$url = "https://api.postmon.com.br/v1/rastreio/correios/" . urlencode($codigo);
 
 $ch = curl_init();
 curl_setopt_array($ch, [
@@ -28,4 +28,9 @@ if (curl_errno($ch)) {
 curl_close($ch);
 $dados = json_decode($response, true);
 
-echo json_encode($dados['eventos'] ?? []);
+if (!isset($dados['eventos']) || !is_array($dados['eventos'])) {
+    echo json_encode(['error' => 'Código inválido ou sem eventos']);
+    exit;
+}
+
+echo json_encode($dados['eventos']);
